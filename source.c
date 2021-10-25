@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define MAX_STRING 64
-#define MAX_LINE 4096
+#define MAX_LINE 1024
 
 typedef struct _person{
     char fname[MAX_STRING], lname[MAX_STRING];
@@ -16,15 +16,33 @@ void insertAfter(person* prev, person* to_insert);
 void prependList(person* headptr, person* to_insert);
 void appendList(person* headptr, person* to_insert);
 void printList(person* headptr);
+void printNode(person* node);
+void printByLname();
 person* findByLname(person* headptr, char* lname);
 void deleteElement(person* headptr, char* fname, char* lname);
 person* findBefore(person* headptr, char* fname, char* lname);
+int menu();
 
 int main(){
     person head = {.fname = "", .lname = "", .next = NULL };
+    int choice;
+    while(1){
+        choice = menu();
+        
+        switch(choice){
+            case 0:
+                return 0;
+            case 1:
+                
+                break;
+            case 2:
 
-
-
+                break;
+            case 3:
+                printByLname();
+                break;
+        }
+    }
     return 0;
 }
 
@@ -37,7 +55,6 @@ void appendList(person* headptr, person* to_insert){
     temp = findEnd(temp);
     insertAfter(temp, to_insert);
 }
-
 
 void insertAfter(person* prev, person* to_insert){
     to_insert->next = prev->next;
@@ -72,8 +89,12 @@ person* findEnd(person* headptr){
 
 void printList(person* headptr){
     for(person* node = headptr->next; node; node = node->next){
-        printf("%s %s\n", node->fname, node->lname);
+        printNode(node);
     }
+}
+
+void printNode(person* node){
+    printf("%s %s\n", node->fname, node->lname);
 }
 
 person* findByLname(person* headptr, char* lname){
@@ -98,5 +119,24 @@ person* findBefore(person* headptr, char* fname, char* lname){
         if(!strcmp(node->next->fname, fname) && !strcmp(node->next->lname, lname)){
             return node;
         }
+    }
+}
+
+int menu(){
+    int choice = 0;
+    
+    while(1){
+        printf(
+        "Izbornik:
+        0 - izlaz
+        1 - unos na pocetak s liste
+        2 - unos na kraj liste
+        3 - pronadi po prezimenu
+        ");
+
+        scanf(" %d", &choice);
+        if(choice>=0 && choice<=3) return choice;
+        
+        printf("Pogresan unos. Pokusajte ponovno\n");
     }
 }
