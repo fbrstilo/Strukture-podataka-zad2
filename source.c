@@ -7,29 +7,31 @@
 
 typedef struct _person{
     char fname[MAX_STRING], lname[MAX_STRING];
+    int byear;
     struct _person* next;
 }person;
 
-person* createPerson(char* fname, char* lname);
+person* createPerson(char* fname, char* lname, int byear);
 person* findEnd(person* headptr);
 void insertAfter(person* prev, person* to_insert);
-void prependList(person* headptr, char* fname, char* lname);
-void appendList(person* headptr, char* fname, char* lname);
+void prependList(person* headptr, char* fname, char* lname, int byear);
+void appendList(person* headptr, char* fname, char* lname, int byear);
 void printList(person* headptr);
 void printNode(person* node);
 person* findByLname(person* headptr, char* lname);
-void deleteElement(person* headptr, char* fname, char* lname);
-person* findBefore(person* headptr, char* fname, char* lname);
+void deleteElement(person* headptr);
+person* findBefore(person* headptr, char* lname);
 
 //menu functions
 int menu();
 void printByLname(person* headptr);
-void dataInput(person* headptr, void (*insert_function)(person* headptr, char* fname, char* lname));
+void dataInput(person* headptr, void (*insert_function)(person* headptr, char* fname, char* lname, int byear));
 
 
 int main(){
     person head = {.fname = "", .lname = "", .next = NULL };
     int choice;
+    char to_delete[MAX_STRING];
     while(1){
         choice = menu();
         
@@ -46,7 +48,7 @@ int main(){
                 printByLname(&head);
                 break;
             case 4:
-                dataInput(&head, deleteElement);
+                deleteElement(&head);
                 break;
             case 5:
                 printList(&head);
@@ -56,9 +58,9 @@ int main(){
     return 0;
 }
 
-void prependList(person* headptr, char* fname, char* lname){
+void prependList(person* headptr, char* fname, char* lname, int byear){
     person* to_insert = NULL;
-    to_insert = createPerson(fname, lname);
+    to_insert = createPerson(fname, lname, byear);
     if(!to_insert){
         printf("Failed to prepend list. Try again.\n");
         return;
@@ -66,10 +68,10 @@ void prependList(person* headptr, char* fname, char* lname){
     insertAfter(headptr, to_insert);
 }
 
-void appendList(person* headptr, char* fname, char* lname){
+void appendList(person* headptr, char* fname, char* lname, int byear){
     person* temp = headptr;
     person* to_insert = NULL;
-    to_insert = createPerson(fname, lname);
+    to_insert = createPerson(fname, lname, byear);
     if(!to_insert){
         printf("Failed to appepend list. Try again.\n");
         return;
@@ -83,7 +85,7 @@ void insertAfter(person* prev, person* to_insert){
     prev->next = to_insert;
 }
 
-person* createPerson(char* fname, char* lname){
+person* createPerson(char* fname, char* lname, int byear){
     person* temp = NULL;
 
     temp = (person*)malloc(sizeof(person));
@@ -95,6 +97,7 @@ person* createPerson(char* fname, char* lname){
 
     strcpy(temp->fname, fname);
     strcpy(temp->lname, lname);
+    temp->byear = byear;
     temp->next = NULL;
 
     return temp;
@@ -120,7 +123,7 @@ void printList(person* headptr){
 }
 
 void printNode(person* node){
-    printf("%s %s\n", node->fname, node->lname);
+    printf("%s %s %d\n", node->fname, node->lname, node->byear);
 }
 
 person* findByLname(person* headptr, char* lname){
@@ -132,22 +135,24 @@ person* findByLname(person* headptr, char* lname){
     return NULL;
 }
 
-void deleteElement(person* headptr, char* fname, char* lname){
-    person* before = findBefore(headptr, fname, lname);
+void deleteElement(person* headptr){
+    char lname[MAX_STRING] = {0};
+    printf("Unesite ime osobe koju zelite obrisati:\n");
+    scanf(" %s", lname);
+    person* before = findBefore(headptr, lname);
     if(before == NULL){
         printf("Osoba se ne nalazi na listi.\n");
         return;
     }
     person* temp = before->next;
-
     before->next = temp->next;
     free(temp);
 }
 
-person* findBefore(person* headptr, char* fname, char* lname){
+person* findBefore(person* headptr, char* lname){
     if(headptr->next == NULL) return NULL;
-    for(person* node = headptr->next; node->next; node = node->next){
-        if((strcmp(node->next->fname, fname) == 0) && (strcmp(node->next->lname, lname) == 0)){
+    for(person* node = headptr; node->next; node = node->next){
+        if(strcmp(node->next->lname, lname) == 0){
             return node;
         }
     }
@@ -190,9 +195,12 @@ void printByLname(person* headptr){
     }
 }
 
-void dataInput(person* headptr, void (*insert_function)(person* headptr, char* fname, char* lname)){
+void dataInput(person* headptr, void (*insert_function)(person* headptr, char* fname, char* lname, int byear)){
     char fname[MAX_STRING], lname[MAX_STRING];
+    int byear;
     printf("Unesite ime i prezime osobe:\n");
     scanf(" %s %s", fname, lname);
-    insert_function(headptr, fname, lname);
+    printf("Godina rodenja: ");
+    scanf(" %d", &byear);
+    insert_function(headptr, fname, lname, byear);
 }
