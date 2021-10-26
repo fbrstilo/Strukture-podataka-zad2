@@ -137,7 +137,7 @@ person* findByLname(person* headptr, char* lname){
 
 void deleteElement(person* headptr){
     char lname[MAX_STRING] = {0};
-    printf("Unesite ime osobe koju zelite obrisati:\n");
+    printf("Unesite prezime osobe koju zelite obrisati:\n");
     scanf(" %s", lname);
     person* before = findBefore(headptr, lname);
     if(before == NULL){
@@ -164,7 +164,7 @@ int menu(){
     
     while(1){
         printf(
-        "\nIzbornik:\n"
+        "Izbornik:\n"
         "0 - izlaz\n"
         "1 - unos na pocetak liste\n"
         "2 - unos na kraj liste\n"
@@ -174,6 +174,7 @@ int menu(){
         );
 
         scanf(" %d", &choice);
+        puts("");
         if(choice>=0 && choice<=5) return choice;
         
         printf("Pogresan unos. Pokusajte ponovno\n");
