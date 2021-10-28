@@ -31,7 +31,6 @@ void dataInput(person* headptr, void (*insert_function)(person* headptr, char* f
 int main(){
     person head = {.fname = "", .lname = "", .next = NULL };
     int choice;
-    char to_delete[MAX_STRING];
     while(1){
         choice = menu();
         
