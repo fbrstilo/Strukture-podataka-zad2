@@ -22,10 +22,21 @@ person* findByLname(person* headptr, char* lname);
 void deleteElement(person* headptr);
 person* findBefore(person* headptr, char* lname);
 
+//zadatak 3
+void addBehind(person* headptr, char* fname, char* lname, int byear);
+void addBefore(person* headptr, char* fname, char* lname, int byear);
+void sortByLname(person* headptr);
+person* importList(char* filename);
+int exportList(person* headptr, char* filename);
+
+int ascending(char* str1, char* str2){return strcmp(str1, str2);}
+int descending(char* str1, char* str2){return strcmp(str2, str1);}
+
 //menu functions
 int menu();
 void printByLname(person* headptr);
 void dataInput(person* headptr, void (*insert_function)(person* headptr, char* fname, char* lname, int byear));
+char* askLname();
 
 
 int main(){
@@ -35,6 +46,18 @@ int main(){
         choice = menu();
         
         switch(choice){
+            /*
+            0 - izlaz
+            1 - unos na pocetak liste
+            2 - unos na kraj liste
+            3 - unos ispred odredenog elementa
+            4 - unos iza odredenog elementa
+            5 - pronadi po prezimenu
+            6 - brisanje iz liste
+            7 - ispis liste
+            8 - sortiranje liste
+            9 - rad sa datotekama
+            */
             case 0:
                 return 0;
             case 1:
@@ -44,13 +67,24 @@ int main(){
                 dataInput(&head, appendList);
                 break;
             case 3:
-                printByLname(&head);
+                dataInput(&head, addBefore);
                 break;
             case 4:
-                deleteElement(&head);
+                dataInput(&head, addBehind);
                 break;
             case 5:
+                printByLname(&head);
+                break;
+            case 6:
+                deleteElement(&head);
+                break;
+            case 7:
                 printList(&head);
+                break;
+            case 8:
+                sortByLname(&head);
+                break;
+            case 9:
                 break;
         }
     }
@@ -136,8 +170,7 @@ person* findByLname(person* headptr, char* lname){
 
 void deleteElement(person* headptr){
     char lname[MAX_STRING] = {0};
-    printf("Unesite prezime osobe koju zelite obrisati:\n");
-    scanf(" %s", lname);
+    strcpy(lname, askLname());
     person* before = findBefore(headptr, lname);
     if(before == NULL){
         printf("Osoba se ne nalazi na listi.\n");
@@ -167,14 +200,18 @@ int menu(){
         "0 - izlaz\n"
         "1 - unos na pocetak liste\n"
         "2 - unos na kraj liste\n"
-        "3 - pronadi po prezimenu\n"
-        "4 - brisanje iz liste\n"
-        "5 - ispis liste\n"
+        "3 - unos ispred odredenog elementa\n"
+        "4 - unos iza odredenog elementa\n"
+        "5 - pronadi po prezimenu\n"
+        "6 - brisanje iz liste\n"
+        "7 - ispis liste\n"
+        "8 - sortiranje liste\n"
+        "9 - rad sa datotekama\n"
         );
 
         scanf(" %d", &choice);
         puts("");
-        if(choice>=0 && choice<=5) return choice;
+        if(choice>=0 && choice<=9) return choice;
         
         printf("Pogresan unos. Pokusajte ponovno\n");
     }
@@ -183,8 +220,7 @@ int menu(){
 void printByLname(person* headptr){
     char lname[MAX_STRING];
     person* temp = NULL;
-    printf("Unesite prezime osobe koju trazite:\n");
-    scanf(" %s", lname);
+    strcpy(lname, askLname());
 
     temp = findByLname(headptr, lname);
     if(temp == NULL){
@@ -198,9 +234,70 @@ void printByLname(person* headptr){
 void dataInput(person* headptr, void (*insert_function)(person* headptr, char* fname, char* lname, int byear)){
     char fname[MAX_STRING], lname[MAX_STRING];
     int byear;
-    printf("Unesite ime i prezime osobe:\n");
+    printf("Unesite ime i prezime osobe koju zelite unijeti:\n");
     scanf(" %s %s", fname, lname);
     printf("Godina rodenja: ");
     scanf(" %d", &byear);
     insert_function(headptr, fname, lname, byear);
+}
+
+char* askLname(){
+    char lname[MAX_STRING];
+    printf("Unesite prezime trazene osobe:\n");
+    scanf(" %s", lname);
+    return lname;
+}
+
+void addBehind(person* headptr, char* fname, char* lname, int byear){
+    person* temp = headptr;
+    person* to_insert = NULL;
+    char before[MAX_STRING];
+    to_insert = createPerson(fname, lname, byear);
+    if(!to_insert){
+        printf("Failed to add behind. Try again.\n");
+        return;
+    }
+    strcpy(before, askLname());
+    temp = findByLname(temp, before);
+    insertAfter(temp, to_insert);
+}
+
+void addBefore(person* headptr, char* fname, char* lname, int byear){
+    person* temp = headptr;
+    person* to_insert = NULL;
+    char before[MAX_STRING];
+    to_insert = createPerson(fname, lname, byear);
+    if(!to_insert){
+        printf("Failed to add before. Try again.\n");
+        return;
+    }
+    strcpy(before, askLname());
+    temp = findBefore(temp, before);
+    insertAfter(temp, to_insert);
+}
+
+void sortByLname(person* headptr){
+    person* current = headptr;
+    person* next = headptr->next;
+    int (*sort_function)(char* str1, char* str2);
+    int choice = 0;
+    while(1){
+        printf(
+        "Kakvo sortiranje zelite?\n"
+        "1 - uzlazno\n"
+        "2 - silazno\n");
+        scanf(" %d", &choice);
+        if(choice == 1){
+            sort_function = ascending;
+            break;
+        }
+        else if(choice == 2){
+            sort_function = descending;
+            break;
+        }
+        else{
+            printf("Pogresan unos. Pokusajte ponovno:\n");
+        }
+    }
+    //TODO ostatak funkcije lol
 }
