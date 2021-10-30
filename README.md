@@ -1,5 +1,4 @@
-# Strukture podataka
-#Zadatak 2 i 3
+# Strukture podataka - zadatak 2 i 3
 
 2.
 Definirati strukturu osoba (ime, prezime, godina rođenja) i napisati program koji:
