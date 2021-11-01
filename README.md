@@ -16,3 +16,5 @@ B. dinamički dodaje novi element ispred određenog elementa,
 C. sortira listu po prezimenima osoba,
 D. upisuje listu u datoteku,
 E. čita listu iz datoteke.
+
+TODO: test/debug import/export functionalities
