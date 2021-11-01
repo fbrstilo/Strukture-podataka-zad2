@@ -32,12 +32,14 @@ int exportList(person* headptr, char* filename);
 int ascending(char* str1, char* str2){return strcmp(str1, str2);} //vraca pozitivan broj ako su stringovi slozeni silazno
 int descending(char* str1, char* str2){return strcmp(str2, str1);} //vraca pozitivan broj ako su stringovi slozeni uzlazno
 void swapPerson(person* current);
+void freeList(person* headptr);
 
 //menu functions
 int menu();
 void printByLname(person* headptr);
 void dataInput(person* headptr, void (*insert_function)(person* headptr, char* fname, char* lname, int byear));
 void askLname(char* lname);
+void workWithFiles(person* headptr);
 
 
 int main(){
@@ -86,6 +88,7 @@ int main(){
                 sortByLname(&head);
                 break;
             case 9:
+                workWithFiles(&head);
                 break;
         }
     }
@@ -329,4 +332,94 @@ void swapPerson(person* current){
    first->next = second->next;
    second->next = first;
    current->next = second;
+}
+
+person* importList(char* filename){
+    char buffer[MAX_LINE];
+    FILE* file = NULL;
+    person head = {.fname = "", .lname = "", .byear = 0, .next = NULL};
+    char fname[MAX_STRING], lname[MAX_STRING];
+    int byear;
+
+    file = fopen(filename, "r");
+    if(!file){
+        perror("Failed to open file in function importList");
+        return NULL;
+    }
+
+    while(!feof(file)){
+        fgets(buffer, MAX_LINE, file);
+        if(sscanf(buffer, " %s %s %d", fname, lname, &byear) == 3){
+            prependList(&head, fname, lname, byear);
+        }
+    }
+    fclose(file);
+    return head.next;
+}
+
+int exportList(person* headptr, char* filename){
+    FILE* file = NULL;
+    person* temp = headptr->next;
+
+    file = fopen(filename, "w");
+    if(!file){
+        perror("Failed to open file in function exportList\n");
+        return -1;
+    }
+
+    while(temp){
+        fprintf(file, "%s %s %d\n", temp->fname, temp->lname, temp->byear);
+    }
+    fclose(file);
+    return 0;
+}
+
+void workWithFiles(person* headptr){
+    int choice;
+    char filename[MAX_STRING];
+    
+    while(1){
+        printf("Zelite li uvoz ili izvoz liste?\n"
+        "0 - povratak\n"
+        "1 - uvoz\n"
+        "2 - izvoz\n");
+        scanf(" %d", &choice);
+        if(choice == 0){
+            return;
+        }
+        else if(choice == 1){
+            freeList(headptr);
+            printf("Unesite ime datoteke iz koje zelite unijeti listu (ukljucujuci i nastavak npr. .txt):\n");
+            scanf(" %s", filename);
+            headptr->next = importList(filename);
+            if(!headptr->next){
+                printf("Uvoz liste nije uspio. Pokusajte ponovno.\n");
+                return;
+            }
+        }
+        else if(choice == 2){
+            printf("Unesite ime datoteke u koju zelite izvesti listu:\n");
+            scanf(" %s", filename);
+            if(exportList(headptr, filename) == -1){
+                printf("Izvoz liste nije uspio. Pokusajte ponovno.\n");
+            }
+        }
+        else{
+            printf("Pogresan unos. Pokusajte ponovno.\n");
+        }
+    }
+
+}
+
+void freeList(person* headptr){
+    person* temp1 = headptr;
+    person* temp2 = headptr->next;
+    
+    if(!temp2) return;
+    
+    do{
+        temp1 = temp2;
+        temp2 = temp2->next;
+        free(temp1);
+    }while(temp2);
 }
