@@ -29,18 +29,19 @@ void sortByLname(person* headptr);
 person* importList(char* filename);
 int exportList(person* headptr, char* filename);
 
-int ascending(char* str1, char* str2){return strcmp(str1, str2);}
-int descending(char* str1, char* str2){return strcmp(str2, str1);}
+int ascending(char* str1, char* str2){return strcmp(str1, str2);} //vraca pozitivan broj ako su stringovi slozeni silazno
+int descending(char* str1, char* str2){return strcmp(str2, str1);} //vraca pozitivan broj ako su stringovi slozeni uzlazno
+void swapPerson(person* current);
 
 //menu functions
 int menu();
 void printByLname(person* headptr);
 void dataInput(person* headptr, void (*insert_function)(person* headptr, char* fname, char* lname, int byear));
-char* askLname();
+void askLname(char* lname);
 
 
 int main(){
-    person head = {.fname = "", .lname = "", .next = NULL };
+    person head = {.fname = "", .lname = "", .byear = 0, .next = NULL };
     int choice;
     while(1){
         choice = menu();
@@ -170,7 +171,7 @@ person* findByLname(person* headptr, char* lname){
 
 void deleteElement(person* headptr){
     char lname[MAX_STRING] = {0};
-    strcpy(lname, askLname());
+    askLname(lname);
     person* before = findBefore(headptr, lname);
     if(before == NULL){
         printf("Osoba se ne nalazi na listi.\n");
@@ -220,7 +221,7 @@ int menu(){
 void printByLname(person* headptr){
     char lname[MAX_STRING];
     person* temp = NULL;
-    strcpy(lname, askLname());
+    askLname(lname);
 
     temp = findByLname(headptr, lname);
     if(temp == NULL){
@@ -241,11 +242,9 @@ void dataInput(person* headptr, void (*insert_function)(person* headptr, char* f
     insert_function(headptr, fname, lname, byear);
 }
 
-char* askLname(){
-    char lname[MAX_STRING];
+void askLname(char* lname){
     printf("Unesite prezime trazene osobe:\n");
     scanf(" %s", lname);
-    return lname;
 }
 
 void addBehind(person* headptr, char* fname, char* lname, int byear){
@@ -257,7 +256,7 @@ void addBehind(person* headptr, char* fname, char* lname, int byear){
         printf("Failed to add behind. Try again.\n");
         return;
     }
-    strcpy(before, askLname());
+    askLname(before);
     temp = findByLname(temp, before);
     insertAfter(temp, to_insert);
 }
@@ -271,16 +270,21 @@ void addBefore(person* headptr, char* fname, char* lname, int byear){
         printf("Failed to add before. Try again.\n");
         return;
     }
-    strcpy(before, askLname());
+    askLname(before);
     temp = findBefore(temp, before);
     insertAfter(temp, to_insert);
 }
 
 void sortByLname(person* headptr){
     person* current = headptr;
-    person* next = headptr->next;
-    int (*sort_function)(char* str1, char* str2);
+    int (*sort_check)(char* str1, char* str2);
     int choice = 0;
+    int swapped = 1;
+
+    //provjera postoje li prva 2 elementa
+    if(!current->next) return;
+    if(!current->next->next) return;
+
     while(1){
         printf(
         "Kakvo sortiranje zelite?\n"
@@ -288,16 +292,41 @@ void sortByLname(person* headptr){
         "2 - silazno\n");
         scanf(" %d", &choice);
         if(choice == 1){
-            sort_function = ascending;
+            sort_check = ascending;
             break;
         }
         else if(choice == 2){
-            sort_function = descending;
+            sort_check = descending;
             break;
         }
         else{
             printf("Pogresan unos. Pokusajte ponovno:\n");
         }
     }
-    //TODO ostatak funkcije lol
+    
+    while(swapped){
+        swapped = 0;
+        current = headptr;
+        while(current->next->next){
+            if(sort_check(current->next->lname, current->next->next->lname) > 0){
+                swapPerson(current);
+                swapped = 1;
+            }
+            current = current->next;
+        }
+    }
+}
+
+void swapPerson(person* current){
+   person* first = current->next;
+   if(!first){
+       printf("Error in function swapPerson: person1 does not exist\n");
+   }
+   person* second = first->next;
+   if(!second){
+       printf("Error in function swapPerson: person2 does not exist\n");
+   }
+   first->next = second->next;
+   second->next = first;
+   current->next = second;
 }
