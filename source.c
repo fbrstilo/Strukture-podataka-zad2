@@ -348,6 +348,7 @@ person* importList(char* filename){
     }
 
     while(!feof(file)){
+        strcpy(buffer, "");
         fgets(buffer, MAX_LINE, file);
         if(sscanf(buffer, " %s %s %d", fname, lname, &byear) == 3){
             prependList(&head, fname, lname, byear);
@@ -369,6 +370,7 @@ int exportList(person* headptr, char* filename){
 
     while(temp){
         fprintf(file, "%s %s %d\n", temp->fname, temp->lname, temp->byear);
+        temp = temp->next;
     }
     fclose(file);
     return 0;
